@@ -49,10 +49,10 @@ app.post("/account/login", (req, res, next) => {
                     status: 200,
                 });
             } else {
-                return res.status(400).json({
+                return res.status(403).json({
                     message: "Loggin failed. Account or password does not match",
                     success: false,
-                    status: 400,
+                    status: 403,
                 });
             }
         })
@@ -61,7 +61,7 @@ app.post("/account/login", (req, res, next) => {
 // get thong tin account
 
 app.get("/account", checkToken, (req, res, next) => {
-    console.log(req.user);
+
     AccountAdminModel.findOne({
             _id: req.user,
         })
@@ -349,6 +349,45 @@ app.put("/changecapacityroom/:_id", checkToken, (req, res, next) => {
                 status: 200,
                 success: true,
                 message: "Successfully changed capacity",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid room found",
+            })
+        );
+});
+
+// delete room
+app.delete("/deleteroom/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    RoomModel.deleteOne({ _id: _id })
+        .then((data) => {
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Delete Successfully",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid room found",
+            })
+        );
+});
+
+app.delete("/deletecourse/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    CourseModel.deleteOne({ _id: _id, isCheck: 0 })
+        .then((data) => {
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Delete Successfully",
             });
         })
         .catch((err) =>
