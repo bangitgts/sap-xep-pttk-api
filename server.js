@@ -199,6 +199,110 @@ app.post("/add-course", (req, res, next) => {
         });
 });
 
+// sua course
+app.put("/changenamecourse/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const nameCourse = req.body.nameCourse;
+    CourseModel.findOne({ nameCourse: nameCourse })
+        .then((data) => data)
+        .then((data) => {
+            if (data)
+                res.status(402).json({
+                    status: 402,
+                    success: false,
+                    message: "Named the same as a certain course",
+                });
+            else {
+                CourseModel.findOne({ _id: _id })
+                    .then((data) => {
+                        data.nameCourse = nameCourse;
+                        data.save();
+                        res.status(200).json({
+                            status: 200,
+                            success: true,
+                            message: "Successfully renamed course",
+                        });
+                    })
+                    .catch((data) => {
+                        res.status(403).json({
+                            status: 403,
+                            success: false,
+                            message: "Invalid course ID",
+                        });
+                    });
+            }
+        });
+});
+
+// Sua schedule Course
+app.put("/changeschedulecourse/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const schedule = req.body.schedule;
+    CourseModel.findOne({ _id: _id, isCheck: 0 })
+        .then((data) => {
+            data.schedule = schedule;
+            data.save();
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Successfully changed course time",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid courses found",
+            })
+        );
+});
+
+//
+app.put("/changeduringcourse/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const during = req.body.during;
+    CourseModel.findOne({ _id: _id, isCheck: 0 })
+        .then((data) => {
+            data.during = during;
+            data.save();
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Successfully changed during time",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid courses found",
+            })
+        );
+});
+
+//
+app.put("/changeamountcourse/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const amount = req.body.amount;
+    CourseModel.findOne({ _id: _id, isCheck: 0 })
+        .then((data) => {
+            data.amount = amount;
+            data.save();
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Successfully changed amount",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid courses found",
+            })
+        );
+});
+
 //start
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
