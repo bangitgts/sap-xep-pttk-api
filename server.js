@@ -60,6 +60,7 @@ app.post("/account/login", (req, res, next) => {
         .catch((err) => res.status(500).json(err));
 });
 // get thong tin account
+
 app.get("/account", checkToken, (req, res, next) => {
     console.log(req.user);
     AccountAdminModel.findOne({
@@ -127,7 +128,7 @@ app.get("/course", (req, res, next) => {
 });
 
 // ADD ROOM
-app.post("/add-room", checkToken, (req, res, next) => {
+app.post("/addroom", checkToken, (req, res, next) => {
     let nameRoom = req.body.nameRoom;
     let capacity = req.body.capacity;
     RoomModel.findOne({ nameRoom: nameRoom })
@@ -161,7 +162,7 @@ app.post("/add-room", checkToken, (req, res, next) => {
 
 // add course
 
-app.post("/add-course", (req, res, next) => {
+app.post("/addcourse", (req, res, next) => {
     var nameCourse = req.body.nameCourse;
     var schedule = req.body.schedule;
     var during = req.body.during;
@@ -337,6 +338,30 @@ app.put("/changenameroom/:_id", checkToken, (req, res, next) => {
             }
         });
 });
+
+// change capital
+app.put("/changecapacityroom/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const capacity = req.body.capacity;
+    RoomModel.findOne({ _id: _id })
+        .then((data) => {
+            data.capacity = capacity;
+            data.save();
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Successfully changed capacity",
+            });
+        })
+        .catch((err) =>
+            res.status(402).json({
+                status: 402,
+                success: true,
+                message: "No valid room found",
+            })
+        );
+});
+
 //start
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
