@@ -21,27 +21,45 @@ var course20 = [{
 ];
 
 var rooms = [{
-        lichhoc: [],
+        lichhoc: [
+            [],
+            []
+        ],
         nameRoom: "Bang5",
         capacity: 20,
     },
     {
-        lichhoc: [],
+        lichhoc: [
+            []
+        ],
         nameRoom: "Bang4",
         capacity: 20,
     },
     {
-        lichhoc: [],
+        lichhoc: [
+            []
+        ],
         nameRoom: "Bang6",
         capacity: 20,
     },
-
 ];
-
-
 let temp = [];
-
-for (let course of course20) {
-    temp.push(course.lichhoc.length);
+for (let item of rooms) {
+    temp.push(item.lichhoc.length);
 }
-console.log(temp)
+let c = Math.min(...temp);
+let temp1 = [];
+for (let item of rooms) {
+    var last = [...item.lichhoc].pop();
+    const tong = last.reduce((a, b) => a + b, 0);
+    if (item.lichhoc.length === c && tong !== 1 && tong !== 5) {
+        temp1.push(item);
+    }
+}
+
+for (let item of temp1) {
+    for (lichhoc of item.lichhoc) {
+        var tong = [...item.lichhoc].pop().reduce((a, b) => a + b, 0);
+
+    }
+}
