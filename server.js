@@ -21,6 +21,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+function bubbleSort(array) {
+    var size = array.length;
+    for (var i = 0; i < size - 1; i++) {
+        for (var j = 0; j < size - i - 1; j++) {
+            if (array[j].during > array[j + 1].during) {
+                var temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            } else if (
+                array[j].during === array[j + 1].during &&
+                array[j].amount < array[j + 1].amount
+            ) {
+                var temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            }
+        }
+    }
+}
+
 // Login token
 app.post("/account/login", (req, res, next) => {
     let email = req.body.email;
@@ -61,7 +81,6 @@ app.post("/account/login", (req, res, next) => {
 // get thong tin account
 
 app.get("/account", checkToken, (req, res, next) => {
-
     AccountAdminModel.findOne({
             _id: req.user,
         })
@@ -142,6 +161,7 @@ app.post("/addroom", checkToken, (req, res, next) => {
                 RoomModel.create({
                     nameRoom: nameRoom,
                     capacity: capacity,
+                    lichhoc: [],
                 });
                 res.status(200).json({
                     status: 200,
@@ -181,7 +201,7 @@ app.post("/addcourse", (req, res, next) => {
                     during: during,
                     amount: amount,
                     isCheck: 0, // 0 la chua khai giaang
-                    createDate: new Date().toString(),
+                    createDate: (new Date()).toLocaleDateString(),
                 });
                 res.status(200).json({
                     status: 200,
@@ -397,6 +417,100 @@ app.delete("/deletecourse/:_id", checkToken, (req, res, next) => {
                 message: "No valid room found",
             })
         );
+});
+
+app.put("/changecourseischeck/:_id", (req, res, next) => {
+    const _id = req.params._id;
+    CourseModel.findOne({ _id: _id })
+        .then((data) => {
+            if (data.isCheck === 0) {
+                data.isCheck = 1;
+                data.save();
+            } else if (data.isCheck === 1) {
+                data.isCheck = 0;
+                data.save();
+            }
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Change Successfully",
+            });
+        })
+        .catch((err) => {
+            res.status(402).json({
+                status: 402,
+                success: false,
+                message: "No Course in data",
+            });
+        });
+});
+
+app.post("/sapxepkhoahoc", (req, res, next) => {
+    CourseModel.find({ isCheck: 1 })
+        .then((data) => {
+            let course20 = [];
+            let course30 = [];
+            let course40 = [];
+
+            for (let item of data) {
+                if (data.amount <= 20) {
+                    course20.push(item);
+                } else if (data.amount > 20 && data.amount <= 30) {
+                    course30.push(item);
+                } else {
+                    course30.push(item);
+                }
+            }
+
+            bubbleSort(course20);
+            bubbleSort(course30);
+            bubbleSort(course40);
+
+            return {
+                course20: course20,
+                course30: course30,
+                course40: course40,
+            };
+        })
+        .then((data) => {
+            let c = data;
+            RoomModel.find({})
+                .then((data) => {
+                    let course20 = c.course20;
+                    let course30 = c.course30;
+                    let course40 = c.course40;
+                    let room20 = [];
+                    let room30 = [];
+                    let room40 = [];
+                    for (let item of data) {
+                        if (item.capacity === 20) {
+                            room20.push(item);
+                        } else if (item.capacity === 30) {
+                            room30.push(item);
+                        } else {
+                            room40.push(item);
+                        }
+                    }
+                    console.log(room30)
+                    return {
+                        course20,
+                        course30,
+                        course40,
+                        room20,
+                        room30,
+                        room40,
+                    };
+                })
+                .then((data) => {
+                    let course20 = data.course20;
+                    let course30 = data.course30;
+                    let course40 = data.course40;
+                    let room20 = data.room20;
+                    let room30 = data.room30;
+                    let room40 = data.room40;
+
+                });
+        });
 });
 
 //start
