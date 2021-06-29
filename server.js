@@ -303,6 +303,40 @@ app.put("/changeamountcourse/:_id", checkToken, (req, res, next) => {
         );
 });
 
+app.put("/changenameroom/:_id", checkToken, (req, res, next) => {
+    const _id = req.params._id;
+    const nameRoom = req.body.nameRoom;
+    RoomModel.findOne({ nameRoom: nameRoom })
+        .then((data) => data)
+        .then((data) => {
+            if (data)
+                res.status(402).json({
+                    status: 402,
+                    success: false,
+                    message: "Named the same as a certain room",
+                });
+            else {
+                RoomModel.findOne({ _id: _id })
+                    .then((data) => {
+
+                        data.nameRoom = nameRoom;
+                        data.save();
+                        res.status(200).json({
+                            status: 200,
+                            success: true,
+                            message: "Successfully renamed room",
+                        });
+                    })
+                    .catch((data) => {
+                        res.status(403).json({
+                            status: 403,
+                            success: false,
+                            message: "Invalid Room ID",
+                        });
+                    });
+            }
+        });
+});
 //start
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
