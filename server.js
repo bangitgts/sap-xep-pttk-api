@@ -25,7 +25,6 @@ app.use(bodyParser.json());
 app.post("/account/login", (req, res, next) => {
     let email = req.body.email;
     let password = req.body.password;
-
     AccountAdminModel.findOne({
             email: email,
             password: password,
