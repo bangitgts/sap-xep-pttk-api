@@ -201,7 +201,7 @@ app.post("/addcourse", (req, res, next) => {
                     during: during,
                     amount: amount,
                     isCheck: 0, // 0 la chua khai giaang
-                    createDate: (new Date()).toLocaleDateString(),
+                    createDate: (new Date()).toLocaleString(),
                 });
                 res.status(200).json({
                     status: 200,

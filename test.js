@@ -1,2 +1,2 @@
 var a = new Date()
-console.log(a.toLocaleDateString());
+console.log(a.toLocaleString());
