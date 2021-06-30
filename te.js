@@ -43,12 +43,16 @@ var rooms = [{
         capacity: 20,
     },
 ];
+
 let temp = [];
+
 for (let item of rooms) {
     temp.push(item.lichhoc.length);
 }
+
 let c = Math.min(...temp);
 let temp1 = [];
+
 for (let item of rooms) {
     var last = [...item.lichhoc].pop();
     const tong = last.reduce((a, b) => a + b, 0);
@@ -57,9 +61,13 @@ for (let item of rooms) {
     }
 }
 
-for (let item of temp1) {
-    for (lichhoc of item.lichhoc) {
-        var tong = [...item.lichhoc].pop().reduce((a, b) => a + b, 0);
+for (let course of course20) {
+    for (let item of temp1) {
+        for (lichhoc of item.lichhoc) {
+            var tong = [...item.lichhoc].pop().reduce((a, b) => a + b, 0);
 
+        }
     }
 }
+
+// da co temp chua cac phong legth nho nha => lich hoc nho nhat
