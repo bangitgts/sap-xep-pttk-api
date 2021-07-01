@@ -16,6 +16,7 @@ const AccountAdminModel = require("./models/AccountAdmin");
 app.use(cors());
 app.use(cookieParser());
 app.use(morgan("combined"));
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
@@ -41,6 +42,46 @@ function bubbleSort(array) {
     }
 }
 
+function xeplop(room, course) {
+    let temp = [];
+    for (let item of course) {
+        if (item.schedule === "full") {
+            const found = room.find(
+                (element) =>
+                element.fulltuan.length === 0 &&
+                element.thuchan.length === 0 &&
+                element.thule.length === 0
+            );
+            found.fulltuan.push(item);
+            temp.push(found);
+        }
+    }
+
+    for (let item of course) {
+        try {
+            if (item.schedule === "thuchan") {
+                const found = room.find(
+                    (element) =>
+                    element.thuchan.length === 0 && element.fulltuan.length === 0
+                );
+                found.thuchan.push(item);
+                temp.push(found);
+            }
+
+            if (item.schedule === "thule") {
+                const found = room.find(
+                    (element) =>
+                    element.thule.length === 0 && element.fulltuan.length === 0
+                );
+                found.thule.push(item);
+                temp.push(found);
+            }
+        } catch (error) {
+            console.log("da tran phong");
+        }
+    }
+    return temp;
+}
 // Login token
 app.post("/account/login", (req, res, next) => {
     let email = req.body.email;
@@ -56,8 +97,8 @@ app.post("/account/login", (req, res, next) => {
                     },
                     "password"
                 );
-                res.header("auth-token", token);
 
+                res.header("auth-token", token);
                 res.status(200).json({
                     message: "Loggin successfully",
                     data: {
@@ -201,7 +242,7 @@ app.post("/addcourse", (req, res, next) => {
                     during: during,
                     amount: amount,
                     isCheck: 0, // 0 la chua khai giaang
-                    createDate: (new Date()).toLocaleString(),
+                    createDate: new Date().toLocaleString(),
                 });
                 res.status(200).json({
                     status: 200,
@@ -491,7 +532,7 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
                             room40.push(item);
                         }
                     }
-                    console.log(room30)
+
                     return {
                         course20,
                         course30,
@@ -508,9 +549,125 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
                     let room20 = data.room20;
                     let room30 = data.room30;
                     let room40 = data.room40;
-
+                    res.json(course30);
                 });
         });
+});
+
+app.get("/test", (req, res, next) => {
+    var course20 = [{
+            nameCourse: "Bang3",
+            schedule: "2",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang4",
+            schedule: "2",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang5",
+            schedule: "2",
+            during: 3,
+        },
+        {
+            nameCourse: "Bang",
+            schedule: "2",
+            during: 4,
+        },
+        {
+            nameCourse: "Bang10",
+            schedule: "2",
+            during: 4,
+        },
+        {
+            nameCourse: "Bang11",
+            schedule: "3",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang12",
+            schedule: "3",
+            during: 2,
+        },
+
+        {
+            nameCourse: "Bang13",
+            schedule: "2",
+            during: 2,
+        },
+    ];
+
+    bubbleSort(course20);
+    let rooms = [{
+            lichchan: [{
+                nameCourse: "Bang1",
+                schedule: "2",
+                during: 2,
+            }, ],
+            lichle: [],
+            nameRoom: "P01",
+            capacity: 20,
+        },
+        {
+            lichchan: [],
+            lichle: [],
+            nameRoom: "P02",
+            capacity: 20,
+        },
+        {
+            lichchan: [{
+                nameCourse: "Bang2",
+                schedule: "2",
+                during: 2,
+            }, ],
+            lichle: [],
+            nameRoom: "P03",
+            capacity: 20,
+        },
+    ];
+
+    function removeA(arr) {
+        var what,
+            a = arguments,
+            L = a.length,
+            ax;
+        while (L > 1 && arr.length) {
+            what = a[--L];
+            while ((ax = arr.indexOf(what)) !== -1) {
+                arr.splice(ax, 1);
+            }
+        }
+        return arr;
+    }
+    let temp = [];
+    while (course20.length !== 0) {
+        const findChan = course20.find((el) => el.schedule === "2");
+        const findLe = course20.find((el) => el.schedule === "3");
+
+        if (findChan !== undefined) {
+            rooms.sort(function(a, b) {
+                return (
+                    a.lichchan.reduce((a, b) => a + b.during, 0) -
+                    b.lichchan.reduce((a, b) => a + b.during, 0)
+                );
+            });
+            rooms[0].lichchan.push(findChan);
+            removeA(course20, findChan);
+        }
+        if (findLe !== undefined) {
+            rooms.sort(function(a, b) {
+                return (
+                    a.lichle.reduce((a, b) => a + b.during, 0) -
+                    b.lichle.reduce((a, b) => a + b.during, 0)
+                );
+            });
+            rooms[0].lichle.push(findLe);
+            removeA(course20, findLe);
+        }
+    }
+
+    res.json(rooms);
 });
 
 //start

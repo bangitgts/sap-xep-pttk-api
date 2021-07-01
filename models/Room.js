@@ -8,10 +8,6 @@ const RoomSchema = new Schema({
     nameRoom: String,
     capacity: Number,
     lichhoc: Array
-        // 3 loai phong
-        // phong 20: capacity = 20
-        // phong 30: capacity = 30
-        // phong 40: capacity = 40
 }, {
     collection: "room",
 });

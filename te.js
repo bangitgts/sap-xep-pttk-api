@@ -1,73 +1,58 @@
 var course20 = [{
-        nameCourse: "Bang1",
+        nameCourse: "Bang3",
         schedule: "2",
         during: 2,
     },
     {
-        nameCourse: "Bang2",
-        schedule: "0",
+        nameCourse: "Bang4",
+        schedule: "2",
         during: 2,
     },
     {
-        nameCourse: "Bang3",
+        nameCourse: "Bang5",
         schedule: "2",
         during: 3,
     },
     {
-        nameCourse: "Bang4",
+        nameCourse: "Bang6",
         schedule: "2",
         during: 4,
     },
 ];
 
-var rooms = [{
-        lichhoc: [
-            [],
-            []
-        ],
-        nameRoom: "Bang5",
-        capacity: 20,
+let rooms = [{
+        lichchan: [],
+        lichle: [],
+        nameRoom: "P01",
+        capacity: 20
     },
     {
-        lichhoc: [
-            []
-        ],
-        nameRoom: "Bang4",
-        capacity: 20,
+        lichchan: [],
+        lichle: [],
+        nameRoom: "P02",
+        capacity: 20
     },
     {
-        lichhoc: [
-            []
-        ],
-        nameRoom: "Bang6",
-        capacity: 20,
-    },
+        lichchan: [],
+        lichle: [],
+        nameRoom: "P03",
+        capacity: 20
+    }
 ];
 
-let temp = [];
+while (course20.length !== 0) {
+    const findChan = course20.find((el) => el.schedule === "2");
+    const findChanIndex = course20.findIndex((el) => el.schedule === "2");
+    rooms.sort(function(a, b) {
+        return (
+            a.lichchan.reduce((a, b) => a + b.during, 0) -
+            b.lichchan.reduce((a, b) => a + b.during, 0)
+        );
+    });
+    course20.pop();
+    res.json(rooms);
 
-for (let item of rooms) {
-    temp.push(item.lichhoc.length);
+    // rooms[0].lichchan.push(findChan);
+    // course20.splice(findChanIndex, 1);
 }
-
-let c = Math.min(...temp);
-let temp1 = [];
-
-for (let item of rooms) {
-    var last = [...item.lichhoc].pop();
-    const tong = last.reduce((a, b) => a + b, 0);
-    if (item.lichhoc.length === c && tong !== 1 && tong !== 5) {
-        temp1.push(item);
-    }
-}
-
-for (let course of course20) {
-    for (let item of temp1) {
-        for (lichhoc of item.lichhoc) {
-            var tong = [...item.lichhoc].pop().reduce((a, b) => a + b, 0);
-
-        }
-    }
-}
-
-// da co temp chua cac phong legth nho nha => lich hoc nho nhat
+res.json(rooms);
