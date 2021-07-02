@@ -556,71 +556,46 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
 
 app.get("/test", (req, res, next) => {
     var course20 = [{
-            nameCourse: "Bang3",
-            schedule: "2",
-            during: 2,
-        },
-        {
-            nameCourse: "Bang4",
-            schedule: "2",
-            during: 2,
-        },
-        {
-            nameCourse: "Bang5",
-            schedule: "2",
-            during: 3,
-        },
-        {
-            nameCourse: "Bang",
-            schedule: "2",
-            during: 4,
-        },
-        {
-            nameCourse: "Bang10",
-            schedule: "2",
-            during: 4,
-        },
-        {
-            nameCourse: "Bang11",
-            schedule: "3",
-            during: 2,
-        },
-        {
-            nameCourse: "Bang12",
-            schedule: "3",
-            during: 2,
-        },
-
-        {
-            nameCourse: "Bang13",
-            schedule: "2",
-            during: 2,
-        },
-    ];
+        nameCourse: "Bang3",
+        schedule: "2",
+        during: 2,
+    }, ];
 
     bubbleSort(course20);
     let rooms = [{
             lichchan: [{
-                nameCourse: "Bang1",
-                schedule: "2",
-                during: 2,
-            }, ],
+                    nameCourse: "Bang1",
+                    schedule: "2",
+                    during: 2,
+                },
+                { during: 3 },
+            ],
             lichle: [],
             nameRoom: "P01",
             capacity: 20,
         },
         {
-            lichchan: [],
-            lichle: [],
-            nameRoom: "P02",
-            capacity: 20,
-        },
-        {
             lichchan: [{
-                nameCourse: "Bang2",
-                schedule: "2",
-                during: 2,
-            }, ],
+                    nameCourse: "Bang2",
+                    schedule: "2",
+                    during: 2,
+                },
+                {
+                    nameCourse: "Bang12",
+                    schedule: "2",
+                    during: 2,
+                },
+                {
+                    nameCourse: "Bang13",
+                    schedule: "2",
+                    during: 2,
+                },
+                {
+                    nameCourse: "Bang14",
+                    schedule: "2",
+                    during: 2,
+                },
+            ],
             lichle: [],
             nameRoom: "P03",
             capacity: 20,
@@ -641,20 +616,58 @@ app.get("/test", (req, res, next) => {
         return arr;
     }
     let temp = [];
+    let tempChan = [];
+    for (let i = 0; i < rooms.length; i++) {
+        for (let j = 0; j < rooms[i].lichchan.length; j++) {
+            const c = Object.getOwnPropertyNames(rooms[i].lichchan[j]).length;
+            if (c === 1) {
+                const itemAdd = {
+                    nameRoom: rooms[i].nameRoom,
+                    indexPhong: i,
+                    lichchanArrayIndex: j,
+                    during: rooms[i].lichchan[j].during,
+                };
+                tempChan.push(itemAdd);
+            }
+        }
+    }
     while (course20.length !== 0) {
         const findChan = course20.find((el) => el.schedule === "2");
         const findLe = course20.find((el) => el.schedule === "3");
+        const findFull = course20.find((el) => el.schedule === "1");
 
         if (findChan !== undefined) {
-            rooms.sort(function(a, b) {
-                return (
-                    a.lichchan.reduce((a, b) => a + b.during, 0) -
-                    b.lichchan.reduce((a, b) => a + b.during, 0)
-                );
-            });
-            rooms[0].lichchan.push(findChan);
-            removeA(course20, findChan);
+            const duringInChan = tempChan.find((el) => el.during >= findChan.during);
+            if (duringInChan === undefined) {
+                rooms.sort(function(a, b) {
+                    return (
+                        a.lichchan.reduce((a, b) => a + b.during, 0) -
+                        b.lichchan.reduce((a, b) => a + b.during, 0)
+                    );
+                });
+                rooms[0].lichchan.push(findChan);
+                removeA(course20, findChan);
+            } else if (
+                duringInChan !== undefined &&
+                duringInChan.during >= findChan.during
+            ) {
+                if (duringInChan.during === findChan.during) {
+                    rooms[duringInChan.indexPhong].lichchan.splice(duringInChan.lichchanArrayIndex, 1);
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex, 0, findChan
+                    );
+                    removeA(course20, findChan);
+                } else {
+                    rooms[duringInChan.indexPhong].lichchan.splice(duringInChan.lichchanArrayIndex, 1);
+                    const addThem = { during: (duringInChan.during - findChan.during) };
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex, 0, addThem, findChan
+                    );
+                    removeA(course20, findChan);
+                }
+            }
         }
+
         if (findLe !== undefined) {
             rooms.sort(function(a, b) {
                 return (
@@ -664,6 +677,36 @@ app.get("/test", (req, res, next) => {
             });
             rooms[0].lichle.push(findLe);
             removeA(course20, findLe);
+        }
+
+        if (findFull !== undefined) {
+            rooms.sort(function(a, b) {
+                return (
+                    a.lichchan.length +
+                    a.lichle.length -
+                    (b.lichchan.length + b.lichle.length)
+                );
+            });
+            const chan = rooms[0].lichchan.reduce((a, b) => a + b.during, 0);
+            const le = rooms[0].lichle.reduce((a, b) => a + b.during, 0);
+            if (chan > le) {
+                const itemDringAdd = {
+                    during: chan - le,
+                };
+                rooms[0].lichle.push(itemDringAdd);
+                rooms[0].lichle.push(findFull);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
+            if (le > chan) {
+                const itemDringAdd = {
+                    during: le - chan,
+                };
+                rooms[0].lichle.push(findFull);
+                rooms[0].lichchan.push(itemDringAdd);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
         }
     }
 
