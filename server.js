@@ -42,45 +42,178 @@ function bubbleSort(array) {
     }
 }
 
-function xeplop(room, course) {
-    let temp = [];
-    for (let item of course) {
-        if (item.schedule === "full") {
-            const found = room.find(
-                (element) =>
-                element.fulltuan.length === 0 &&
-                element.thuchan.length === 0 &&
-                element.thule.length === 0
-            );
-            found.fulltuan.push(item);
-            temp.push(found);
+function removeA(arr) {
+    var what,
+        a = arguments,
+        L = a.length,
+        ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax = arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
         }
     }
+    return arr;
+}
 
-    for (let item of course) {
-        try {
-            if (item.schedule === "thuchan") {
-                const found = room.find(
-                    (element) =>
-                    element.thuchan.length === 0 && element.fulltuan.length === 0
-                );
-                found.thuchan.push(item);
-                temp.push(found);
+function xeplop(rooms, course20) {
+    let tempChan = []; // kiểm tra rooms nao trong phong
+    let tempLe = []; // kiểm tra rooms nao trong phong
+    for (let i = 0; i < rooms.length; i++) {
+        for (let j = 0; j < rooms[i].lichchan.length; j++) {
+            const c = Object.getOwnPropertyNames(rooms[i].lichchan[j]).length;
+            if (c === 1) {
+                const itemAdd = {
+                    nameRoom: rooms[i].nameRoom,
+                    indexPhong: i,
+                    lichchanArrayIndex: j,
+                    during: rooms[i].lichchan[j].during,
+                };
+                tempChan.push(itemAdd);
             }
-
-            if (item.schedule === "thule") {
-                const found = room.find(
-                    (element) =>
-                    element.thule.length === 0 && element.fulltuan.length === 0
-                );
-                found.thule.push(item);
-                temp.push(found);
-            }
-        } catch (error) {
-            console.log("da tran phong");
         }
     }
-    return temp;
+    for (let i = 0; i < rooms.length; i++) {
+        for (let j = 0; j < rooms[i].lichle.length; j++) {
+            const c = Object.getOwnPropertyNames(rooms[i].lichle[j]).length;
+            if (c === 1) {
+                const itemAdd = {
+                    nameRoom: rooms[i].nameRoom,
+                    indexPhong: i,
+                    lichleArrayIndex: j,
+                    during: rooms[i].lichle[j].during,
+                };
+                tempLe.push(itemAdd);
+            }
+        }
+    }
+    while (course20.length !== 0) {
+        const findChan = course20.find((el) => el.schedule === "2");
+        const findLe = course20.find((el) => el.schedule === "3");
+        const findFull = course20.find((el) => el.schedule === "1");
+
+        if (findChan !== undefined) {
+            const duringInChan = tempChan.find((el) => el.during >= findChan.during);
+            if (duringInChan === undefined) {
+                rooms.sort(function(a, b) {
+                    return (
+                        a.lichchan.reduce((a, b) => a + b.during, 0) -
+                        b.lichchan.reduce((a, b) => a + b.during, 0)
+                    );
+                });
+                rooms[0].lichchan.push(findChan);
+                removeA(course20, findChan);
+            } else if (
+                duringInChan !== undefined &&
+                duringInChan.during >= findChan.during
+            ) {
+                if (duringInChan.during === findChan.during) {
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        1
+                    );
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        0,
+                        findChan
+                    );
+                    removeA(course20, findChan);
+                } else {
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        1
+                    );
+                    const addThem = { during: duringInChan.during - findChan.during };
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        0,
+                        addThem,
+                        findChan
+                    );
+                    removeA(course20, findChan);
+                }
+            }
+        }
+
+        if (findLe !== undefined) {
+            const duringInLe = tempLe.find((el) => el.during >= findLe.during);
+            if (duringInLe === undefined) {
+                rooms.sort(function(a, b) {
+                    return (
+                        a.lichle.reduce((a, b) => a + b.during, 0) -
+                        b.lichle.reduce((a, b) => a + b.during, 0)
+                    );
+                });
+                rooms[0].lichle.push(findLe);
+                removeA(course20, findLe);
+            } else if (
+                duringInLe !== undefined &&
+                duringInLe.during >= findLe.during
+            ) {
+                if (duringInLe.during === findLe.during) {
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        1
+                    );
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        0,
+                        findLe
+                    );
+                    removeA(course20, findLe);
+                } else {
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        1
+                    );
+                    const addThem = { during: duringInLe.during - findLe.during };
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        0,
+                        addThem,
+                        findLe
+                    );
+                    removeA(course20, findLe);
+                }
+            }
+        }
+
+        if (findFull !== undefined) {
+            rooms.sort(function(a, b) {
+                return (
+                    a.lichchan.length +
+                    a.lichle.length -
+                    (b.lichchan.length + b.lichle.length)
+                );
+            });
+            const chan = rooms[0].lichchan.reduce((a, b) => a + b.during, 0);
+            const le = rooms[0].lichle.reduce((a, b) => a + b.during, 0);
+            if (chan > le) {
+                const itemDringAdd = {
+                    during: chan - le,
+                };
+                rooms[0].lichle.push(itemDringAdd);
+                rooms[0].lichle.push(findFull);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
+            if (le > chan) {
+                const itemDringAdd = {
+                    during: le - chan,
+                };
+                rooms[0].lichle.push(findFull);
+                rooms[0].lichchan.push(itemDringAdd);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
+            if (le === chan) {
+                rooms[0].lichle.push(findFull);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
+        }
+    }
+    return rooms;
 }
 // Login token
 app.post("/account/login", (req, res, next) => {
@@ -202,7 +335,8 @@ app.post("/addroom", checkToken, (req, res, next) => {
                 RoomModel.create({
                     nameRoom: nameRoom,
                     capacity: capacity,
-                    lichhoc: [],
+                    lichchan: [],
+                    lichle: [],
                 });
                 res.status(200).json({
                     status: 200,
@@ -364,6 +498,7 @@ app.put("/changeamountcourse/:_id", checkToken, (req, res, next) => {
         );
 });
 
+//
 app.put("/changenameroom/:_id", checkToken, (req, res, next) => {
     const _id = req.params._id;
     const nameRoom = req.body.nameRoom;
@@ -494,12 +629,18 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
             let course40 = [];
 
             for (let item of data) {
-                if (data.amount <= 20) {
+                if (item.amount <= 20) {
                     course20.push(item);
-                } else if (data.amount > 20 && data.amount <= 30) {
+                    item.isCheck = 2;
+                    item.save();
+                } else if (item.amount > 20 && item.amount <= 30) {
                     course30.push(item);
+                    item.isCheck = 2;
+                    item.save();
                 } else {
-                    course30.push(item);
+                    course40.push(item);
+                    item.isCheck = 2;
+                    item.save();
                 }
             }
 
@@ -526,13 +667,15 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
                     for (let item of data) {
                         if (item.capacity === 20) {
                             room20.push(item);
+                            item.remove();
                         } else if (item.capacity === 30) {
                             room30.push(item);
+                            item.remove();
                         } else {
                             room40.push(item);
+                            item.remove();
                         }
                     }
-
                     return {
                         course20,
                         course30,
@@ -549,19 +692,63 @@ app.post("/sapxepkhoahoc", (req, res, next) => {
                     let room20 = data.room20;
                     let room30 = data.room30;
                     let room40 = data.room40;
-                    res.json(course30);
+
+                    xeplop(room20, course20);
+
+                    xeplop(room30, course30);
+
+                    xeplop(room40, course40);
+                    const room = room20.concat(room30, room40);
+                    for (let item of room) {
+                        RoomModel.create({
+                            nameRoom: item.nameRoom,
+                            capacity: item.capacity,
+                            lichchan: item.lichchan,
+                            lichle: item.lichle,
+                        });
+                    }
+                    res.status(200).json({
+                        status: 200,
+                        success: true,
+                        message: "Successfully",
+                    });
                 });
         });
 });
 
 app.get("/test", (req, res, next) => {
     var course20 = [{
-        nameCourse: "Bang3",
-        schedule: "2",
-        during: 2,
-    }, ];
+            nameCourse: "Bang3",
+            schedule: "2",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang4",
+            schedule: "3",
+            during: 3,
+        },
+        {
+            nameCourse: "Bang5",
+            schedule: "3",
+            during: 3,
+        },
+        {
+            nameCourse: "Bang6",
+            schedule: "1",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang7",
+            schedule: "3",
+            during: 2,
+        },
+        {
+            nameCourse: "Bang8",
+            schedule: "3",
+            during: 2,
+        },
+    ];
 
-    bubbleSort(course20);
     let rooms = [{
             lichchan: [{
                     nameCourse: "Bang1",
@@ -569,6 +756,11 @@ app.get("/test", (req, res, next) => {
                     during: 2,
                 },
                 { during: 3 },
+                {
+                    nameCourse: "Bang15",
+                    schedule: "2",
+                    during: 2,
+                },
             ],
             lichle: [],
             nameRoom: "P01",
@@ -615,8 +807,10 @@ app.get("/test", (req, res, next) => {
         }
         return arr;
     }
+
     let temp = [];
-    let tempChan = [];
+    let tempChan = []; // kiểm tra rooms nao trong phong
+    let tempLe = []; // kiểm tra rooms nao trong phong
     for (let i = 0; i < rooms.length; i++) {
         for (let j = 0; j < rooms[i].lichchan.length; j++) {
             const c = Object.getOwnPropertyNames(rooms[i].lichchan[j]).length;
@@ -628,6 +822,20 @@ app.get("/test", (req, res, next) => {
                     during: rooms[i].lichchan[j].during,
                 };
                 tempChan.push(itemAdd);
+            }
+        }
+    }
+    for (let i = 0; i < rooms.length; i++) {
+        for (let j = 0; j < rooms[i].lichle.length; j++) {
+            const c = Object.getOwnPropertyNames(rooms[i].lichle[j]).length;
+            if (c === 1) {
+                const itemAdd = {
+                    nameRoom: rooms[i].nameRoom,
+                    indexPhong: i,
+                    lichleArrayIndex: j,
+                    during: rooms[i].lichle[j].during,
+                };
+                tempLe.push(itemAdd);
             }
         }
     }
@@ -652,16 +860,27 @@ app.get("/test", (req, res, next) => {
                 duringInChan.during >= findChan.during
             ) {
                 if (duringInChan.during === findChan.during) {
-                    rooms[duringInChan.indexPhong].lichchan.splice(duringInChan.lichchanArrayIndex, 1);
                     rooms[duringInChan.indexPhong].lichchan.splice(
-                        duringInChan.lichchanArrayIndex, 0, findChan
+                        duringInChan.lichchanArrayIndex,
+                        1
+                    );
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        0,
+                        findChan
                     );
                     removeA(course20, findChan);
                 } else {
-                    rooms[duringInChan.indexPhong].lichchan.splice(duringInChan.lichchanArrayIndex, 1);
-                    const addThem = { during: (duringInChan.during - findChan.during) };
                     rooms[duringInChan.indexPhong].lichchan.splice(
-                        duringInChan.lichchanArrayIndex, 0, addThem, findChan
+                        duringInChan.lichchanArrayIndex,
+                        1
+                    );
+                    const addThem = { during: duringInChan.during - findChan.during };
+                    rooms[duringInChan.indexPhong].lichchan.splice(
+                        duringInChan.lichchanArrayIndex,
+                        0,
+                        addThem,
+                        findChan
                     );
                     removeA(course20, findChan);
                 }
@@ -669,14 +888,46 @@ app.get("/test", (req, res, next) => {
         }
 
         if (findLe !== undefined) {
-            rooms.sort(function(a, b) {
-                return (
-                    a.lichle.reduce((a, b) => a + b.during, 0) -
-                    b.lichle.reduce((a, b) => a + b.during, 0)
-                );
-            });
-            rooms[0].lichle.push(findLe);
-            removeA(course20, findLe);
+            const duringInLe = tempLe.find((el) => el.during >= findLe.during);
+            if (duringInLe === undefined) {
+                rooms.sort(function(a, b) {
+                    return (
+                        a.lichle.reduce((a, b) => a + b.during, 0) -
+                        b.lichle.reduce((a, b) => a + b.during, 0)
+                    );
+                });
+                rooms[0].lichle.push(findLe);
+                removeA(course20, findLe);
+            } else if (
+                duringInLe !== undefined &&
+                duringInLe.during >= findLe.during
+            ) {
+                if (duringInLe.during === findLe.during) {
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        1
+                    );
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        0,
+                        findLe
+                    );
+                    removeA(course20, findLe);
+                } else {
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        1
+                    );
+                    const addThem = { during: duringInLe.during - findLe.during };
+                    rooms[duringInLe.indexPhong].lichle.splice(
+                        duringInLe.lichleArrayIndex,
+                        0,
+                        addThem,
+                        findLe
+                    );
+                    removeA(course20, findLe);
+                }
+            }
         }
 
         if (findFull !== undefined) {
@@ -704,6 +955,11 @@ app.get("/test", (req, res, next) => {
                 };
                 rooms[0].lichle.push(findFull);
                 rooms[0].lichchan.push(itemDringAdd);
+                rooms[0].lichchan.push(findFull);
+                removeA(course20, findFull);
+            }
+            if (le === chan) {
+                rooms[0].lichle.push(findFull);
                 rooms[0].lichchan.push(findFull);
                 removeA(course20, findFull);
             }

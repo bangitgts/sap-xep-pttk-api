@@ -1,46 +1,36 @@
 let rooms = [{
-        lichchan: [{
-                nameCourse: "Bang1",
-                schedule: "2",
-                during: 2,
-            },
-            { during: 2 },
-            { during: 2 },
-        ],
-        lichle: [],
-        nameRoom: "P01",
-        capacity: 20,
+        nameCourse: "Bang1",
+        schedule: "2",
+        during: 3,
+        amount: 19,
     },
+    { nameCourse: "Bang2", schedule: "2", during: 3, amount: 20 },
     {
-        lichchan: [{ during: 2 }],
-        lichle: [],
-        nameRoom: "P02",
-        capacity: 20,
-    },
-    {
-        lichchan: [],
-        lichle: [{ during: 1 }],
-        nameRoom: "P03",
-        capacity: 20,
-    },
+        nameCourse: "Bang3",
+        schedule: "2",
+        during: 3,
+        amount: 18
+    }
 ];
-const c = Object.getOwnPropertyNames(rooms[0].lichchan[1]).length;
 
-const d = rooms[0].lichchan.reduce((a, b) => a + b.during, 0);
-
-let temp = [];
-for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].lichchan.length; j++) {
-        const c = Object.getOwnPropertyNames(rooms[i].lichchan[j]).length;
-        if (c === 1) {
-            const itemAdd = {
-                nameRoom: rooms[i].nameRoom,
-                lichIndex: j,
-                during: rooms[i].lichchan[j].during
+function bubbleSort(array) {
+    var size = array.length;
+    for (var i = 0; i < size - 1; i++) {
+        for (var j = 0; j < size - i - 1; j++) {
+            if (array[j].during > array[j + 1].during) {
+                var temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            } else if (
+                array[j].during === array[j + 1].during &&
+                array[j].amount < array[j + 1].amount
+            ) {
+                var temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
             }
-            temp.push(itemAdd);
         }
     }
 }
-
-console.log(temp);
+bubbleSort(rooms)
+console.log(rooms);

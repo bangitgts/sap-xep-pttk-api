@@ -7,7 +7,8 @@ const Schema = mongoose.Schema;
 const RoomSchema = new Schema({
     nameRoom: String,
     capacity: Number,
-    lichhoc: Array
+    lichchan: Array,
+    lichle: Array
 }, {
     collection: "room",
 });
