@@ -299,9 +299,31 @@ app.get("/room", (req, res, next) => {
 });
 // get course
 app.get("/course", (req, res, next) => {
-    CourseModel.find({})
+    CourseModel.find({
+            $or: [{ isCheck: 0 }, { isCheck: 1 }],
+        })
         .select("-__v")
-        .select("-isCheck")
+        .then((data) => {
+            res.status(200).json({
+                status: 200,
+                success: true,
+                message: "Return the course",
+                data: data,
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                status: 500,
+                success: false,
+                message: "Server error",
+            });
+        });
+});
+app.get("/coursed", (req, res, next) => {
+    CourseModel.find({
+            isCheck: 2
+        })
+        .select("-__v")
         .then((data) => {
             res.status(200).json({
                 status: 200,
@@ -578,13 +600,26 @@ app.delete("/deleteroom/:_id", checkToken, (req, res, next) => {
 
 app.delete("/deletecourse/:_id", checkToken, (req, res, next) => {
     const _id = req.params._id;
-    CourseModel.deleteOne({ _id: _id, isCheck: 0 })
+    CourseModel.deleteOne({
+            $or: [
+                { _id: _id, isCheck: 0 },
+                { _id: _id, isCheck: 1 },
+            ],
+        })
         .then((data) => {
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Delete Successfully",
-            });
+            if (data.deletedCount === 1) {
+                res.status(200).json({
+                    status: 200,
+                    success: true,
+                    message: "Delete Successfully",
+                });
+            } else {
+                res.status(403).json({
+                    status: 403,
+                    success: true,
+                    message: "This course is scheduled, cannot be deleted",
+                });
+            }
         })
         .catch((err) =>
             res.status(402).json({
