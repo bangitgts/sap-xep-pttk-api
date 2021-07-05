@@ -11,6 +11,7 @@ const checkToken = require("./auth/checkToken");
 const CourseModel = require("./models/Course");
 const RoomModel = require("./models/Room");
 const AccountAdminModel = require("./models/AccountAdmin");
+const mailer = require("./utils/mailer");
 // app use
 //use cors
 app.use(cors());
@@ -40,6 +41,16 @@ function bubbleSort(array) {
             }
         }
     }
+}
+
+function makeid(length) {
+    var result = "";
+    var characters = "0123456789";
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
 
 function removeA(arr) {
@@ -1003,6 +1014,98 @@ app.get("/test", (req, res, next) => {
 
     res.json(rooms);
 });
+
+
+app.post("/account/forgotpassword", (req, res, next) => {
+    const email = req.body.email;
+    AccountAdminModel.findOne({ email: email })
+        .then((data) => {
+            const c = makeid(6);
+            data.resetToken = c;
+            const sub = "Reset Password - Phân tích thiết kế dữ liệu và giải thuật";
+            const htmlContent = `<h3>Mã xác nhận của quý khách là ${c} </h3>`;
+            mailer.sendMail(req.body.email, sub, htmlContent);
+            data.save();
+            res.status(200).json({
+                message: "Your email has been sent successfully",
+                success: true,
+                status: 200,
+            });
+        })
+        .catch((err) => {
+            res.status(402).json({
+                message: "Can't search email",
+                success: false,
+                status: 402,
+            });
+        });
+});
+
+app.post("/accountchange/newpassword/:email", (req, res, next) => {
+    const email = req.params.email;
+    const newPassword = req.body.newPassword;
+    const token = req.body.token;
+    AccountAdminModel.findOne({ email: email, resetToken: token })
+        .then((data) => {
+            if (data === null) {
+                res.status(402).json({
+                    message: "Token không hợp lệ",
+                    success: false,
+                    status: 402,
+                });
+            } else {
+                data.password = newPassword;
+                data.resetToken = null;
+                data.save();
+                res.status(200).json({
+                    message: "Change password successfully",
+                    success: true,
+                    status: 200,
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(402).json({
+                message: "Token không hợp lệ",
+                success: false,
+                status: 402,
+            });
+        });
+});
+
+app.put("/account/changepassword", checkToken, (req, res, next) => {
+    let password = req.body.password;
+    let newPassword = req.body.newPassword;
+    AccountAdminModel.findOne({
+            _id: req.user,
+            password: password,
+        })
+        .then((data) => {
+            if (data) {
+                data.password = newPassword;
+                data.save();
+                res.status(200).json({
+                    status: 200,
+                    success: true,
+                    message: "Change password successfully",
+                });
+            } else {
+                res.status(402).json({
+                    status: 402,
+                    success: false,
+                    message: "Old password entered is incorrect",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(400).json({
+                status: 400,
+                success: false,
+                message: "Đăng nhập không thành công",
+            });
+        });
+});
+
 
 //start
 app.listen(port, () => {

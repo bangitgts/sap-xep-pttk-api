@@ -7,7 +7,8 @@ mongoose.connect('mongodb://localhost/PTTK_296', {
 const Schema = mongoose.Schema;
 const AccountAdminSchema = new Schema({
     email: String,
-    password: String
+    password: String,
+    resetToken: String
 }, {
     collection: 'accountadmin'
 });
