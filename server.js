@@ -6,11 +6,8 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const checkToken = require("./auth/checkToken");
-const RoomModel = require("./models/Room");
 const route = require("./routes/index.js");
-// app use
-//use cors
+//
 app.use(cors());
 app.use(cookieParser());
 app.use(morgan("combined"));
