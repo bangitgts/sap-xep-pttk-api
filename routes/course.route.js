@@ -23,5 +23,6 @@ router.put(
 );
 router.put("/changeischeck/:_id", checkToken, courseController.changeIscheck);
 router.delete("/delete/:_id", checkToken, courseController.deleteCourse);
+router.post("/scheduleclass", checkToken, courseController.scheduleClass);
 
 module.exports = router;
