@@ -9,5 +9,4 @@ router.post("/forgotpassword", accountController.forgotPassword);
 router.post("/newpassword/:email", accountController.newPassword);
 router.put("/changepassword", checkToken, accountController.changePassword);
 
-router.get("/", accountController.getTest);
 module.exports = router;

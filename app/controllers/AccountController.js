@@ -12,11 +12,6 @@ function makeid(length) {
     return result;
 }
 class AccountController {
-    //[GET] test
-    getTest(req, res) {
-        res.json("abc");
-    }
-
     //[POST] Login Account
     loginAccount(req, res) {
             let email = req.body.email;

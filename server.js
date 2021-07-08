@@ -10,7 +10,6 @@ const cors = require("cors");
 const checkToken = require("./auth/checkToken");
 const CourseModel = require("./models/Course");
 const RoomModel = require("./models/Room");
-const AccountAdminModel = require("./models/AccountAdmin");
 
 const route = require("./routes/index.js");
 // app use
@@ -43,8 +42,6 @@ function bubbleSort(array) {
         }
     }
 }
-
-
 
 function removeA(arr) {
     var what,
@@ -222,8 +219,6 @@ function xeplop(rooms, course20) {
 
 route(app);
 
-
-
 // GET THONG TIN ROOM
 app.get("/room", (req, res, next) => {
     RoomModel.find({})
@@ -233,49 +228,6 @@ app.get("/room", (req, res, next) => {
                 status: 200,
                 success: true,
                 message: "Return the rooms",
-                data: data,
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({
-                status: 500,
-                success: false,
-                message: "Server error",
-            });
-        });
-});
-// get course
-app.get("/course", (req, res, next) => {
-    CourseModel.find({
-            $or: [{ isCheck: 0 }, { isCheck: 1 }],
-        })
-        .select("-__v")
-        .then((data) => {
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Return the course",
-                data: data,
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({
-                status: 500,
-                success: false,
-                message: "Server error",
-            });
-        });
-});
-app.get("/coursed", (req, res, next) => {
-    CourseModel.find({
-            isCheck: 2
-        })
-        .select("-__v")
-        .then((data) => {
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Return the course",
                 data: data,
             });
         })
@@ -323,149 +275,7 @@ app.post("/addroom", checkToken, (req, res, next) => {
         });
 });
 
-// add course
 
-app.post("/addcourse", (req, res, next) => {
-    var nameCourse = req.body.nameCourse;
-    var schedule = req.body.schedule;
-    var during = req.body.during;
-    var amount = req.body.amount;
-    CourseModel.findOne({ nameCourse: nameCourse })
-        .then((data) => {
-            if (data) {
-                res.status(402).json({
-                    status: 402,
-                    success: false,
-                    message: "This course already exists",
-                });
-            } else {
-                CourseModel.create({
-                    nameCourse: nameCourse,
-                    schedule: schedule,
-                    during: during,
-                    amount: amount,
-                    isCheck: 0, // 0 la chua khai giaang
-                    createDate: new Date().toLocaleString(),
-                });
-                res.status(200).json({
-                    status: 200,
-                    success: true,
-                    message: "Create success course",
-                });
-            }
-        })
-        .catch((err) => {
-            res.status(500).json({
-                status: 500,
-                success: false,
-                message: "Error coming from servers",
-            });
-        });
-});
-
-// sua course
-app.put("/changenamecourse/:_id", checkToken, (req, res, next) => {
-    const _id = req.params._id;
-    const nameCourse = req.body.nameCourse;
-    CourseModel.findOne({ nameCourse: nameCourse })
-        .then((data) => data)
-        .then((data) => {
-            if (data)
-                res.status(402).json({
-                    status: 402,
-                    success: false,
-                    message: "Named the same as a certain course",
-                });
-            else {
-                CourseModel.findOne({ _id: _id })
-                    .then((data) => {
-                        data.nameCourse = nameCourse;
-                        data.save();
-                        res.status(200).json({
-                            status: 200,
-                            success: true,
-                            message: "Successfully renamed course",
-                        });
-                    })
-                    .catch((data) => {
-                        res.status(403).json({
-                            status: 403,
-                            success: false,
-                            message: "Invalid course ID",
-                        });
-                    });
-            }
-        });
-});
-
-// Sua schedule Course
-app.put("/changeschedulecourse/:_id", checkToken, (req, res, next) => {
-    const _id = req.params._id;
-    const schedule = req.body.schedule;
-    CourseModel.findOne({ _id: _id, isCheck: 0 })
-        .then((data) => {
-            data.schedule = schedule;
-            data.save();
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Successfully changed course time",
-            });
-        })
-        .catch((err) =>
-            res.status(402).json({
-                status: 402,
-                success: true,
-                message: "No valid courses found",
-            })
-        );
-});
-
-//
-app.put("/changeduringcourse/:_id", checkToken, (req, res, next) => {
-    const _id = req.params._id;
-    const during = req.body.during;
-    CourseModel.findOne({ _id: _id, isCheck: 0 })
-        .then((data) => {
-            data.during = during;
-            data.save();
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Successfully changed during time",
-            });
-        })
-        .catch((err) =>
-            res.status(402).json({
-                status: 402,
-                success: true,
-                message: "No valid courses found",
-            })
-        );
-});
-
-//
-app.put("/changeamountcourse/:_id", checkToken, (req, res, next) => {
-    const _id = req.params._id;
-    const amount = req.body.amount;
-    CourseModel.findOne({ _id: _id, isCheck: 0 })
-        .then((data) => {
-            data.amount = amount;
-            data.save();
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Successfully changed amount",
-            });
-        })
-        .catch((err) =>
-            res.status(402).json({
-                status: 402,
-                success: true,
-                message: "No valid courses found",
-            })
-        );
-});
 
 //
 app.put("/changenameroom/:_id", checkToken, (req, res, next) => {
@@ -545,63 +355,7 @@ app.delete("/deleteroom/:_id", checkToken, (req, res, next) => {
         );
 });
 
-app.delete("/deletecourse/:_id", checkToken, (req, res, next) => {
-    const _id = req.params._id;
-    CourseModel.deleteOne({
-            $or: [
-                { _id: _id, isCheck: 0 },
-                { _id: _id, isCheck: 1 },
-            ],
-        })
-        .then((data) => {
-            if (data.deletedCount === 1) {
-                res.status(200).json({
-                    status: 200,
-                    success: true,
-                    message: "Delete Successfully",
-                });
-            } else {
-                res.status(403).json({
-                    status: 403,
-                    success: true,
-                    message: "This course is scheduled, cannot be deleted",
-                });
-            }
-        })
-        .catch((err) =>
-            res.status(402).json({
-                status: 402,
-                success: true,
-                message: "No valid room found",
-            })
-        );
-});
 
-app.put("/changecourseischeck/:_id", (req, res, next) => {
-    const _id = req.params._id;
-    CourseModel.findOne({ _id: _id })
-        .then((data) => {
-            if (data.isCheck === 0) {
-                data.isCheck = 1;
-                data.save();
-            } else if (data.isCheck === 1) {
-                data.isCheck = 0;
-                data.save();
-            }
-            res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Change Successfully",
-            });
-        })
-        .catch((err) => {
-            res.status(402).json({
-                status: 402,
-                success: false,
-                message: "No Course in data",
-            });
-        });
-});
 
 app.post("/sapxepkhoahoc", (req, res, next) => {
     CourseModel.find({ isCheck: 1 })
@@ -950,13 +704,6 @@ app.get("/test", (req, res, next) => {
 
     res.json(rooms);
 });
-
-
-
-
-
-
-
 
 //start
 app.listen(port, () => {
